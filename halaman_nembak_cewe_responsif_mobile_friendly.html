@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mau Jadi Pacarku? 💌</title>
+  <meta name="description" content="Halaman nembak cewe yang manis, responsif, dan bisa dibuka di HP." />
+  <style>
+    :root {
+      --bg: #fff7fb; /* soft pink */
+      --fg: #1f2937; /* slate-800 */
+      --accent: #ff4d6d; /* strawberry */
+      --accent-2: #ff99ac; /* light pink */
+      --card: #ffffff;
+      --shadow: 0 10px 30px rgba(255, 77, 109, 0.25);
+      --radius: 24px;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--fg);
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      width: min(960px, 92vw);
+      display: grid;
+      gap: 18px;
+      text-align: center;
+      position: relative;
+      padding: 28px 18px 54px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 5vw, 40px);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    h1 {
+      font-size: clamp(28px, 7vw, 56px);
+      line-height: 1.05;
+      margin: 0 0 6px;
+    }
+
+    .sub {
+      font-size: clamp(14px, 3.6vw, 18px);
+      opacity: 0.8;
+      margin-bottom: clamp(18px, 4vw, 26px);
+    }
+
+    .avatar {
+      width: clamp(84px, 24vw, 128px);
+      height: clamp(84px, 24vw, 128px);
+      border-radius: 999px;
+      margin: 0 auto 10px;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 30% 30%, #ffd9e1, #ffc2cc);
+      color: #fff;
+      font-size: clamp(28px, 8vw, 44px);
+      box-shadow: 0 6px 20px rgba(255, 77, 109, .25);
+      user-select: none;
+    }
+
+    .btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: min(520px, 100%);
+      margin: 0 auto;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 16px;
+      padding: 16px 18px;
+      font-size: clamp(16px, 4.2vw, 18px);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+      box-shadow: 0 8px 18px rgba(31, 41, 55, .08);
+    }
+
+    #yesBtn { background: var(--accent); color: #fff; }
+    #yesBtn:active { transform: scale(.97); }
+
+    #noBtn  { background: #f3f4f6; color: #111827; position: relative; }
+
+    .mini {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      width: min(520px, 100%);
+      margin: 6px auto 0;
+    }
+
+    .mini button { font-weight: 600; padding: 12px; border-radius: 12px; }
+
+    .tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; border-radius: 999px; padding: 8px 14px; margin: 0 auto;
+      box-shadow: 0 6px 14px rgba(0,0,0,.06);
+      font-size: 14px;
+    }
+
+    .hearts-bg { /* floating hearts */
+      position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden;
+    }
+    .heart { position: absolute; opacity: .35; animation: float var(--dur) linear infinite; }
+    @keyframes float { from { transform: translateY(110vh) scale(var(--s)); } to { transform: translateY(-10vh) scale(var(--s)); } }
+
+    .toast {
+      position: fixed; inset: auto 0 18px; display: grid; place-items: center; pointer-events: none;
+    }
+    .toast-inner {
+      background: #111827; color: #fff; padding: 12px 16px; border-radius: 12px; font-size: 14px; opacity: 0; transform: translateY(10px);
+      transition: .25s ease; pointer-events: auto;
+    }
+    .toast-inner.show { opacity: 1; transform: translateY(0); }
+
+    /* Confetti canvas on top */
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 40; }
+
+    .footer { font-size: 12px; opacity: .7; margin-top: 10px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div class="hearts-bg" id="hearts"></div>
+
+  <main class="wrap">
+    <div class="tag">🍫 <span id="giftText">Cokelat manis spesial buat kamu</span></div>
+
+    <section class="card" aria-live="polite">
+      <div class="avatar" id="avatar" aria-hidden="true">💖</div>
+      <h1 id="headline">Hai <span id="targetName">Kamu</span>, mau jadi pacarku?</h1>
+      <p class="sub" id="subtitle">Aku serius sama kamu. Kalau kamu mau, tekan tombol <strong>Ya</strong> ya ✨</p>
+
+      <div class="btns">
+        <button id="yesBtn" aria-label="Ya, mau">Ya, mau 🥰</button>
+        <button id="noBtn" aria-label="Enggak">Enggak 🙈</button>
+      </div>
+
+      <div class="mini">
+        <button id="editNameBtn">Ubah nama panggilan</button>
+        <button id="shareWA">Kirim ke WhatsApp</button>
+      </div>
+
+      <p class="footer">Tip: di HP tombol <em>Enggak</em> bakal ngumpet kalau kamu kejar 😆</p>
+    </section>
+  </main>
+
+  <div class="toast" aria-live="polite"><div class="toast-inner" id="toast">Disalin ke clipboard</div></div>
+
+  <script>
+    // Floating hearts background
+    const hearts = document.getElementById('hearts');
+    const HEARTS_COUNT = 24;
+    for (let i = 0; i < HEARTS_COUNT; i++) {
+      const s = document.createElement('div');
+      s.className = 'heart';
+      s.textContent = '❤';
+      const size = Math.random() * 1.4 + .6; // 0.6–2.0
+      s.style.left = Math.random() * 100 + 'vw';
+      s.style.fontSize = (size * 22) + 'px';
+      s.style.setProperty('--dur', (Math.random() * 12 + 10) + 's');
+      s.style.setProperty('--s', size);
+      s.style.animationDelay = (-Math.random() * 18) + 's';
+      hearts.appendChild(s);
+    }
+
+    // Dodging "No" button (desktop & mobile)
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const wrap = document.querySelector('.card');
+
+    function moveNoButton() {
+      const rect = wrap.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const pad = 10;
+      const maxX = rect.width - btnRect.width - pad;
+      const maxY = rect.height - btnRect.height - pad - 80; // keep inside card
+      const x = Math.random() * maxX + pad;
+      const y = Math.random() * maxY + pad + 80;
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+    }
+
+    noBtn.addEventListener('pointerenter', moveNoButton);
+    noBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); moveNoButton(); });
+    noBtn.addEventListener('click', (e) => { e.preventDefault(); moveNoButton(); });
+
+    // Confetti burst when clicking Yes
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], running = false, raf;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize); resize();
+
+    function Particle(x, y) {
+      this.x = x; this.y = y;
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 6 + 4;
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed;
+      this.size = Math.random() * 6 + 3;
+      this.life = Math.random() * 60 + 50; // frames
+      this.rot = Math.random() * Math.PI * 2;
+      this.vr = (Math.random() - .5) * 0.3;
+      this.shape = Math.random() < .5 ? 'rect' : 'circle';
+      // random pastel
+      const colors = ['#ff4d6d', '#ff99ac', '#ffd166', '#06d6a0', '#118ab2'];
+      this.color = colors[(Math.random() * colors.length) | 0];
+    }
+
+    Particle.prototype.update = function() {
+      this.vy += 0.15; // gravity
+      this.x += this.vx;
+      this.y += this.vy;
+      this.rot += this.vr;
+      this.life--;
+    }
+
+    Particle.prototype.draw = function() {
+      ctx.save();
+      ctx.translate(this.x, this.y); ctx.rotate(this.rot);
+      ctx.fillStyle = this.color;
+      if (this.shape === 'rect') {
+        ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+      } else {
+        ctx.beginPath(); ctx.arc(0, 0, this.size/2, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function burst(x, y) {
+      for (let i = 0; i < 180; i++) particles.push(new Particle(x, y));
+      if (!running) animate();
+    }
+
+    function animate() {
+      running = true;
+      ctx.clearRect(0,0,W,H);
+      particles = particles.filter(p => p.life > 0 && p.y < H + 40);
+      particles.forEach(p => { p.update(); p.draw(); });
+      if (particles.length > 0) raf = requestAnimationFrame(animate); else running = false;
+    }
+
+    // YES click handler
+    yesBtn.addEventListener('click', () => {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      burst(centerX, centerY);
+      showToast('Yeay! Jawaban kamu sudah tercatat 💘');
+      // Change headline/subtitle to accepted state
+      document.getElementById('headline').innerHTML = `Alhamdulillah! <span id="targetName">${getName()}</span> sekarang resmi jadi pacarku! 🥳`;
+      document.getElementById('subtitle').textContent = 'Terima kasih sudah memilih aku. Aku bakal jaga kamu baik-baik. ';
+      // Reset No button to stop running away
+      noBtn.style.position = 'relative'; noBtn.style.left = 'auto'; noBtn.style.top = 'auto';
+      noBtn.disabled = true; noBtn.textContent = 'Deal! ❤️';
+    });
+
+    // Name personalization
+    const editNameBtn = document.getElementById('editNameBtn');
+    const targetNameEl = document.getElementById('targetName');
+    const storageKey = 'crush-name-v1';
+
+    function getName() {
+      return localStorage.getItem(storageKey) || 'Kamu';
+    }
+
+    function setName(n) {
+      localStorage.setItem(storageKey, n);
+      targetNameEl.textContent = n;
+      document.getElementById('giftText').textContent = `Cokelat manis spesial buat ${n}`;
+    }
+
+    setName(getName());
+
+    editNameBtn.addEventListener('click', () => {
+      const cur = getName();
+      const input = prompt('Masukkan nama panggilan:', cur);
+      if (input && input.trim()) setName(input.trim());
+    });
+
+    // WhatsApp share
+    const shareBtn = document.getElementById('shareWA');
+    shareBtn.addEventListener('click', async () => {
+      const text = `Hai ${getName()} ❤️\n\nAku punya sesuatu buat kamu...\nMau jadi pacarku?`;
+      const url = location.href;
+      const full = `${text}\n\nBuka halaman ini: ${url}`;
+
+      try {
+        await navigator.clipboard.writeText(full);
+        showToast('Teks & link disalin. Buka WhatsApp lalu tempel ya!');
+      } catch (e) {
+        // fallback: open wa.me
+        const wa = `https://wa.me/?text=${encodeURIComponent(full)}`;
+        location.href = wa;
+      }
+    });
+
+    // Tiny toast helper
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // Accessibility: keyboard users can still reach No but it jumps once
+    noBtn.addEventListener('focus', moveNoButton);
+  </script>
+</body>
+</html>
